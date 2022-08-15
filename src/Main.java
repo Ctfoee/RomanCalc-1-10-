@@ -1,9 +1,9 @@
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
+
 public class Main {
-    static final String [] romaNums = {"0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
-    static final int [] arabNums = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    public static void main (String[] args){
+    public static final List<String> ROMANS = List.of("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X");
+    public static final int[] ARAB = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    public static void main(String[] args) {
         System.out.println("Enter an expression with roman or arab numbers; (Operations: +, -, *, /) ");
         System.out.println("Only natural numbers [1; 10] supported");
         System.out.println("    For arab numbers: First number must be greater than the second");
@@ -13,7 +13,7 @@ public class Main {
         System.out.println(result);
     }
     public static String calc(String numExpression) {
-        String result;
+        int result;
         String astr = "0";
         String bstr = "0";
         String sign = "";
@@ -36,200 +36,67 @@ public class Main {
         }
         astr = astr.trim();
         bstr = bstr.trim();
-        for (int i = 0; i < 11; i++){
-            if (Objects.equals(astr, romaNums[i])){
-                a = arabNums[i];
-                checkA = true;
-            }
-            if (Objects.equals(bstr, romaNums[i])){
-                b = arabNums[i];
-                checkB = true;
-            }
-        }
-        if (checkA && checkB){
-            result = Roman.getIntNumbers(astr, bstr, sign);
-            return result;
-        }
-        else if(!checkA && !checkB){
+        try {
             a = Integer.parseInt(astr);
             b = Integer.parseInt(bstr);
-            if ((a > 0 && a < 11) && (b > 0 && b < 11)){
-                result = expressionResult(a, b, sign);
-                return result;
-            }else{
-                throw new RuntimeException("Both of numbers must be between 1 and 10 inclusively");
+        } catch (NumberFormatException e) {
+            for (int i = 0; i < ROMANS.size(); i++) {
+                if (astr.equals(ROMANS.get(i))) {
+                    checkA = true;
+                    a = i + 1;
+                }
+                if (bstr.equals(ROMANS.get(i))) {
+                    checkB = true;
+                    b = i + 1;
+                }
             }
         }
-        else{
+        if (a < 1 || a > 10 || b < 1 || b > 10) {
+            throw new RuntimeException("Both of numbers must be between 1 and 10 inclusively");
+        }
+        if (checkA && checkB) {
+            result = expressionResult(a, b, sign);
+            return Roman.convertArabToRoman(result);
+        } else if (!checkA && !checkB) {
+            a = Integer.parseInt(astr);
+            b = Integer.parseInt(bstr);
+            result = expressionResult(a, b, sign);
+            return String.valueOf(result);
+        } else {
             throw new RuntimeException("Both of numbers must be between 1 and 10 inclusively and both must be written in same type");
         }
     }
-    public static String expressionResult (int a, int b, String sign){
-        String resultstr;
-        int result = 0;
-        switch (sign){
-            case ("+"):
-                result = a + b;
-                break;
-            case ("-"):
-                result = a - b;
-                break;
-            case ("*"):
-                result = a * b;
-                break;
-            case ("/"):
-                result = a / b;
-                break;
-            default:
-                throw new RuntimeException();
-        }
-        resultstr = String.valueOf(result);
-        return resultstr;
+    public static int expressionResult (int a, int b, String sign){
+        return switch (sign) {
+            case ("+") -> a + b;
+            case ("-") -> a - b;
+            case ("*") -> a * b;
+            case ("/") -> a / b;
+            default -> throw new RuntimeException();
+        };
     }
 }
-class Roman extends Main{
-    public static String getIntNumbers(String astr, String bstr, String sign){
-        int a = 0;
-        int b = 0;
-        String result;
-        String[] rimskie = new String[10];
-        rimskie[0] = "I";
-        rimskie[1] = "II";
-        rimskie[2] = "III";
-        rimskie[3] = "IV";
-        rimskie[4] = "V";
-        rimskie[5] = "VI";
-        rimskie[6] = "VII";
-        rimskie[7] = "VIII";
-        rimskie[8] = "IX";
-        rimskie[9] = "X";
-        for(int i = 0; i < 10; i++){
-            if(astr.equals(rimskie[i])){
-                a = i + 1;
+class Roman{
+    public static Map<String, Integer> romanMap = new LinkedHashMap<>() {{
+        put("C", 100);
+        put("XC", 90);
+        put("L", 50);
+        put("XL", 40);
+        put("X", 10);
+        put("IX", 9);
+        put("V", 5);
+        put("IV", 4);
+        put("I", 1);
+    }};
+    public static String convertArabToRoman(int integerResult) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : romanMap.entrySet()) {
+            if (integerResult >= entry.getValue()) {
+                integerResult -= entry.getValue();
+                result.append(entry.getKey()).append(convertArabToRoman(integerResult));
+                return result.toString();
             }
         }
-        for(int j = 0; j < 10; j++) {
-            if (bstr.equals(rimskie[j])) {
-                b = j + 1;
-            }
-        }
-        if (a > 0 && b > 0){
-            if (a <= b && sign.contains("-")){
-                throw new RuntimeException("For roman numbers: Result of minus operation can't be 0 or less");
-            }else{
-                result = countRim(a, b, sign);
-                return result;
-            }
-        }else{
-            throw new RuntimeException("Both of numbers most be between 1 and 10 inclusively");
-        }
-    }
-    public static String countRim(int a, int b, String sign){
-        String result;
-        int integerResult = 0;
-        switch (sign){
-            case ("+"):
-                integerResult = a + b;
-                break;
-            case ("-"):
-                integerResult = a - b;
-                break;
-            case ("*"):
-                integerResult = a * b;
-                break;
-            case ("/"):
-                integerResult = a / b;
-                break;
-            default:
-                throw new RuntimeException();
-        }
-        result = answerInRoman(integerResult);
-        return result;
-    }
-    public static String answerInRoman(int integerResult){
-        String result = "Roman answer: ";
-        int a;
-        if (integerResult == 100){
-            result = result.concat("C");
-        }
-        if (integerResult % 100 >= 90){
-            a = integerResult % 100 - 90;
-            result = result.concat("XC");
-            if (a / 4 < 1){
-                for (int i = 0; i < a; i++){
-                    result = result.concat("I");
-                }
-            }else if(a / 4 == 1){
-                result = result.concat("IV");
-            }else if (a / 4 > 1 && a / 9 < 1){
-                result = result.concat("V");
-                for (int i = 0; i < a - 5; i++){
-                    result = result.concat("I");
-                }
-            }else if (a / 9 == 1){
-                result = result.concat("IX");
-            }
-        }
-        if (integerResult % 100 >= 50 && integerResult % 100 < 90){
-            a = integerResult % 100 - 50;
-            result = result.concat("L");
-            for (int i = 0; i < a % 10; i++){
-                result = result.concat("X");
-            }
-            if (a / 4 < 1){
-                for (int i = 0; i < a; i++){
-                    result = result.concat("I");
-                }
-            }else if(a / 4 == 1){
-                result = result.concat("IV");
-            }else if (a / 4 > 1 && a / 9 < 1){
-                result = result.concat("V");
-                for (int i = 0; i < a - 5; i++){
-                    result = result.concat("I");
-                }
-            }else if (a / 9 == 1){
-                result = result.concat("IX");
-            }
-        }
-        if (integerResult % 100 >= 40 && integerResult % 100 < 50){
-            a = integerResult % 100 - 40;
-            result = result.concat("XL");
-            if (a / 4 < 1){
-                for (int i = 0; i < a; i++){
-                    result = result.concat("I");
-                }
-            }else if(a / 4 == 1){
-                result = result.concat("IV");
-            }else if (a / 4 > 1 && a / 9 < 1){
-                result = result.concat("V");
-                for (int i = 0; i < a - 5; i++){
-                    result = result.concat("I");
-                }
-            }else if (a / 9 == 1){
-                result = result.concat("IX");
-            }
-        }
-        if (integerResult % 100 < 40){
-            a = integerResult % 100;
-            for (int i = 0; i < a / 10; i++){
-                result = result.concat("X");
-            }
-            a = a % 10;
-            if (a / 4 < 1){
-                for (int i = 0; i < a; i++){
-                    result = result.concat("I");
-                }
-            }else if(a / 4 == 1){
-                result = result.concat("IV");
-            }else if (a / 4 > 1 && a / 9 < 1){
-                result = result.concat("V");
-                for (int i = 0; i < a - 5; i++){
-                    result = result.concat("I");
-                }
-            }else if (a / 9 == 1){
-                result = result.concat("IX");
-            }
-        }
-        return result;
+        return "";
     }
 }
