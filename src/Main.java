@@ -1,13 +1,12 @@
 import java.util.Objects;
 import java.util.Scanner;
 public class Main {
-    static final int [] arabNums = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     static final String [] romaNums = {"0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
+    static final int [] arabNums = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     public static void main (String[] args){
-        System.out.println("Enter an expression with rim or arab numbers");
-        System.out.println("    Only natural numbers [1; 10] supported");
-        System.out.println("    For arab numbers: First number most be greater than the second");
-        System.out.println("        (Operations: +, -, *, /)");
+        System.out.println("Enter an expression with roman or arab numbers; (Operations: +, -, *, /) ");
+        System.out.println("Only natural numbers [1; 10] supported");
+        System.out.println("    For arab numbers: First number must be greater than the second");
         Scanner scan = new Scanner(System.in);
         String numExpression = scan.nextLine();
         String result = calc(numExpression);
@@ -15,8 +14,8 @@ public class Main {
     }
     public static String calc(String numExpression) {
         String result;
-        String astr = "";
-        String bstr = "";
+        String astr = "0";
+        String bstr = "0";
         String sign = "";
         int a = 0;
         int b = 0;
@@ -33,8 +32,7 @@ public class Main {
             }
         }
         if (sign.isEmpty()) {
-            System.out.println("Enter an expression with +, -, * or /");
-            System.exit(0);
+            throw new RuntimeException("Enter an expression with +, -, * or /");
         }
         astr = astr.trim();
         bstr = bstr.trim();
@@ -55,15 +53,16 @@ public class Main {
         else if(!checkA && !checkB){
             a = Integer.parseInt(astr);
             b = Integer.parseInt(bstr);
-            result = expressionResult(a, b, sign);
-            return result;
+            if ((a > 0 && a < 11) && (b > 0 && b < 11)){
+                result = expressionResult(a, b, sign);
+                return result;
+            }else{
+                throw new RuntimeException("Both of numbers must be between 1 and 10 inclusively");
+            }
         }
         else{
-            System.out.println("Both of numbers most be arab or roman");
-            System.out.println("Both of numbers most be between 1 and 10 inclusively (If roman)");
-            System. exit(0);
+            throw new RuntimeException("Both of numbers must be between 1 and 10 inclusively and both must be written in same type");
         }
-        return "0";
     }
     public static String expressionResult (int a, int b, String sign){
         String resultstr;
@@ -81,6 +80,8 @@ public class Main {
             case ("/"):
                 result = a / b;
                 break;
+            default:
+                throw new RuntimeException();
         }
         resultstr = String.valueOf(result);
         return resultstr;
@@ -114,17 +115,14 @@ class Roman extends Main{
         }
         if (a > 0 && b > 0){
             if (a <= b && sign.contains("-")){
-                System.out.println("For arab numbers: Result of minus operation can't be 0 or less");
-                System. exit(0);
+                throw new RuntimeException("For roman numbers: Result of minus operation can't be 0 or less");
             }else{
                 result = countRim(a, b, sign);
                 return result;
             }
         }else{
-            System.out.println("Both of numbers most be between 1 and 10 inclusively");
-            System. exit(0);
+            throw new RuntimeException("Both of numbers most be between 1 and 10 inclusively");
         }
-        return "0";
     }
     public static String countRim(int a, int b, String sign){
         String result;
@@ -142,6 +140,8 @@ class Roman extends Main{
             case ("/"):
                 integerResult = a / b;
                 break;
+            default:
+                throw new RuntimeException();
         }
         result = answerInRoman(integerResult);
         return result;
