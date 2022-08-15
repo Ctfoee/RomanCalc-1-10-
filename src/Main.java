@@ -17,7 +17,7 @@ public class Main {
         String astr = parts[0];
         String sign = parts[1];
         String bstr = parts[2];
-        boolean canBeRoman = false; // Для проверки, одного ли типа a и b
+        boolean canBeRoman = false;
         try {
             a = Integer.parseInt(astr);
             b = Integer.parseInt(bstr);
