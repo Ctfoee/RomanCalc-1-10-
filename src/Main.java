@@ -8,8 +8,8 @@ public class Main {
     }
     public static String calc(String numExpression) {
         int result;
-        int a = 0;
-        int b = 0;
+        int a;
+        int b;
         String[] parts = numExpression.split("\\s");
         if (parts.length != 3) {
             throw new CalculatorException();
@@ -65,6 +65,6 @@ class Roman{
                 return result.toString();
             }
         }
-        return "";
+        return ""; //Строка для устранения ошибки, никогда не выполняется
     }
 }
